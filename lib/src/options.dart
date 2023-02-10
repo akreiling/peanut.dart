@@ -10,6 +10,7 @@ part 'options.g.dart';
 const _directoryFlag = 'directories';
 const _defaultBranch = 'gh-pages';
 const _defaultDirectory = 'web';
+const _defaultFlutter = false;
 const _defaultRelease = true;
 const _defaultVerbose = false;
 const _defaultSourceBranchInfo = true;
@@ -69,6 +70,15 @@ The directories that should be built.
 
   @JsonKey(includeToJson: false, includeFromJson: false)
   final bool buildConfigWasParsed;
+
+  @CliOption(
+    help: 'Force Flutter SDK mode and disables Flutter heuristic checks.',
+    defaultsTo: _defaultFlutter,
+  )
+  final bool flutter;
+
+  @JsonKey(includeToJson: false, includeFromJson: false)
+  final bool flutterWasParsed;
 
   @CliOption(
     defaultsTo: _defaultRelease,
@@ -195,6 +205,8 @@ See the README for details.''',
     this.branchWasParsed = false,
     this.buildConfig,
     this.buildConfigWasParsed = false,
+    this.flutter = _defaultFlutter,
+    this.flutterWasParsed = false,
     this.release = _defaultRelease,
     this.releaseWasParsed = false,
     this.message = defaultMessage,
@@ -240,6 +252,7 @@ See the README for details.''',
       postBuildDartScript: postBuildDartScriptWasParsed
           ? postBuildDartScript
           : other.postBuildDartScript,
+      flutter: flutterWasParsed ? flutter : other.flutter,
       release: releaseWasParsed ? release : other.release,
       rest: rest,
       sourceBranchInfo:

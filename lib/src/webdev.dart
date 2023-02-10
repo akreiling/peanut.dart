@@ -13,12 +13,13 @@ import 'package:path/path.dart' as p;
 import 'package:pub_semver/pub_semver.dart';
 import 'package:yaml/yaml.dart';
 
+import 'options.dart';
 import 'peanut_exception.dart';
 import 'utils.dart';
 
 const _args = ['pub', 'deps'];
-Future _runPubDeps(String workingDirectory) async {
-  final processName = isFlutterSdk ? flutterPath : dartPath;
+Future _runPubDeps(String workingDirectory, bool isFlutterFlag) async {
+  final processName = (isFlutterFlag || isFlutterSdk) ? flutterPath : dartPath;
 
   final result =
       Process.runSync(processName, _args, workingDirectory: workingDirectory);
@@ -45,11 +46,11 @@ Future _runPubDeps(String workingDirectory) async {
   }
 }
 
-Future<void> checkPubspecLock(String pkgDir) async {
-  final pubspecLock = await _PubspecLock.read(pkgDir);
+Future<void> checkPubspecLock(String pkgDir, Options options) async {
+  final pubspecLock = await _PubspecLock.read(pkgDir, options.flutter);
 
   final issues = <PackageExceptionDetails>[];
-  if (!isFlutterSdk) {
+  if (!options.flutter && !isFlutterSdk) {
     issues
       ..addAll(
         pubspecLock.checkPackage(
@@ -75,8 +76,8 @@ class _PubspecLock {
 
   _PubspecLock(this._packages);
 
-  static Future<_PubspecLock> read(String pkgDir) async {
-    await _runPubDeps(pkgDir);
+  static Future<_PubspecLock> read(String pkgDir, bool isFlutterFlag) async {
+    await _runPubDeps(pkgDir, isFlutterFlag);
 
     final pubspecLock =
         loadYaml(await File(p.join(pkgDir, 'pubspec.lock')).readAsString())

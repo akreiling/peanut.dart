@@ -72,7 +72,7 @@ Future<void> run({
     final entryDir = pkgNormalize(workingDir, entry.key);
     print(ansi.styleBold.wrap('  ${prettyPkgPath(entry.key)}'));
     try {
-      await checkPubspecLock(entryDir);
+      await checkPubspecLock(entryDir, options);
     } on FileSystemException catch (e) {
       throw PeanutException('${e.message} ${e.path}');
     }
@@ -133,7 +133,7 @@ Directories: ${sourcePkg.value.join(', ')}''',
         ),
       );
 
-      if (isFlutterSdk) {
+      if (options.flutter || isFlutterSdk) {
         await runFlutterBuild(
           pkgNormalize(workingDir, sourcePkg.key),
           targets,
